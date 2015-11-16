@@ -1,0 +1,14 @@
+{
+	"name": "Text to Speech",
+	"description": "Speak chat messages",
+	"author": "hogepiyo",
+	"contact": "on github",
+	"version": "1",
+	"priority": 0,
+	"hooks": [
+		{
+			"hook_id": "lib/managers/chatmanager",
+			"script_path": "lua/chatmanager.lua"
+		}
+	]
+}
