@@ -70,6 +70,7 @@ __declspec(dllexport) int luaSTSpeech(lua_State *L) // lua_State is broken. I do
 		return 0;
 	}
 	ReadFile(hFile, str, sizeof(str), &numberOfBytesRead, NULL);
+	str[numberOfBytesRead] = '\0';
 	CloseHandle(hFile);
 	
 	_STSpeech(str);
