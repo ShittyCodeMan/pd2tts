@@ -1,6 +1,8 @@
 # pd2tts
 PAYDAY 2 Text to Speech
+
 Fix a fatal glitch related to the unexpected command execution by using ampersand.
+
 And more.
 
 Beta version
