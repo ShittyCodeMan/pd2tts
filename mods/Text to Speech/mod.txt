@@ -3,7 +3,7 @@
 	"description": "Speak chat messages",
 	"author": "hogepiyo",
 	"contact": "on github",
-	"version": "1",
+	"version": "2",
 	"priority": 0,
 	"hooks": [
 		{
