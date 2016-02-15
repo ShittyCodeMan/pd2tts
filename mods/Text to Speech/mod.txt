@@ -1,5 +1,5 @@
 {
-	"name": "Text to Speech",
+	"name": "Text to Speech Bouyomi-chan version",
 	"description": "Speak chat messages",
 	"author": "hogepiyo",
 	"contact": "on github",

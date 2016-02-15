@@ -1,3 +1,4 @@
+#include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
 #include <lua.h>
@@ -6,47 +7,48 @@
 
 char ModulePath[MAX_PATH];
 
-void _STSpeech(const char *message)
+void _STSpeech(const char *msg)
 {
-	PROCESS_INFORMATION pi;
-	STARTUPINFOA si;
-	DWORD numberOfBytesWritten;
-
-	HANDLE readTemp;
-	HANDLE readPipe  = NULL;
-	HANDLE writePipe = NULL;
-
-	char FileName[MAX_PATH];
-
-	CreatePipe(&readTemp, &writePipe, NULL, 0);
-
-	DuplicateHandle(
-		GetCurrentProcess(), readTemp,
-		GetCurrentProcess(), &readPipe,
-		0, TRUE, DUPLICATE_SAME_ACCESS);
-
-	CloseHandle(readTemp);
+	SOCKADDR_IN server;
+	WSADATA     wsadata;
+	SOCKET      sock;
 	
-	SecureZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-	si.dwFlags = STARTF_USESTDHANDLES;
-	si.hStdInput = readPipe;
-
-	lstrcpy(FileName, ModulePath);
-	lstrcat(FileName, "stspeech.exe");
-	CreateProcess(
-		FileName, NULL,
-		NULL, NULL,
-		TRUE,
-		CREATE_NO_WINDOW,
-		NULL, NULL,
-		&si, &pi);
-	WriteFile(writePipe, message, lstrlen(message), &numberOfBytesWritten, NULL);
+	long   len;
+	char   buf[15];
 	
-	CloseHandle(readPipe);
-	CloseHandle(writePipe);
-	CloseHandle(pi.hThread);
-	CloseHandle(pi.hProcess);
+	//送信するデータの生成(文字列を除いた先頭の部分)
+	len = (long)lstrlen(msg);
+	*((short*)&buf[0])  = 0x0001; //[0-1]  (16Bit) コマンド          （ 0:メッセージ読み上げ）
+	*((short*)&buf[2])  = -1;     //[2-3]  (16Bit) 速度              （-1:棒読みちゃん画面上の設定）
+	*((short*)&buf[4])  = -1;     //[4-5]  (16Bit) 音程              （-1:棒読みちゃん画面上の設定）
+	*((short*)&buf[6])  = -1;     //[6-7]  (16Bit) 音量              （-1:棒読みちゃん画面上の設定）
+	*((short*)&buf[8])  = 0;      //[8-9]  (16Bit) 声質              （ 0:棒読みちゃん画面上の設定、1:女性1、2:女性2、3:男性1、4:男性2、5:中性、6:ロボット、7:機械1、8:機械2、10001～:SAPI5）
+	*((char* )&buf[10]) = 2;      //[10]   ( 8Bit) 文字列の文字コード（ 0:UTF-8, 1:Unicode, 2:Shift-JIS）
+	*((long* )&buf[11]) = len;    //[11-14](32Bit) 文字列の長さ
+	
+	//接続先指定用構造体の準備
+	server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+	server.sin_port             = htons(50001);
+	server.sin_family           = AF_INET;
+	
+	//Winsock2初期化
+	WSAStartup(MAKEWORD(1, 1), &wsadata);
+	
+	//ソケット作成
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	
+	//サーバに接続
+	connect(sock, (struct sockaddr *)&server, sizeof(server));
+	
+	//データ送信
+	send(sock, buf, 15, 0);
+	send(sock, msg, len, 0);
+	
+	//ソケット終了
+	closesocket(sock);
+	
+	//Winsock2終了
+	WSACleanup();
 }
 
 __declspec(dllexport) int luaSTSpeech(lua_State *L) // lua_State is broken. I don't know how to fix :p
