@@ -1,9 +1,9 @@
 # pd2tts
-## PAYDAY 2 Text to Speech (Bouyomi-chan version)
-This mod need install Bouyomi-chan for use.
+## PAYDAY 2 Text to Speech (Bouyomi-chan version)  
+This mod need install Bouyomi-chan for use.  
 And execute her before game launch.
 
-Q. What is Bouyomi-chan? Where is download it? blablabla
+Q. What is Bouyomi-chan? Where is download it? blablabla  
 A. Japanese TTS software. Google it. yadayadayada
 
 Beta version
